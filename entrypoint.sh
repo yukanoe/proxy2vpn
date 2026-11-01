@@ -7,6 +7,10 @@ set -u
 : "${VPN_USER:?VPN_USER is required}"
 : "${VPN_PASS:?VPN_PASS is required}"
 VPN_PSK="${VPN_PSK:-}"                   # empty = plain L2TP (no IPsec)
+# IKE/ESP proposals offered to the server, most preferred first. Servers differ:
+# some accept only aes256-sha256-modp2048 or aes256-sha1-modp1024.
+VPN_IKE="${VPN_IKE:-aes256-sha256-modp2048,aes256-sha1-modp2048,aes256-sha1-modp1024,aes128-sha256-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1024,3des-sha1-modp1024}"
+VPN_ESP="${VPN_ESP:-aes256-sha256,aes256-sha1,aes128-sha256,aes128-sha1,3des-sha1}"
 export DIRECT_MARK="${DIRECT_MARK:-1}"   # mark of "direct" sockets; the kill-switch lets only this mark out of eth0
 
 log() { echo "[$(date '+%F %T')] $*"; }
@@ -96,8 +100,8 @@ conn L2TP
   leftprotoport=17/1701
   right=$SERVER_IP
   rightprotoport=17/1701
-  ike=aes256-sha1-modp2048,aes128-sha1-modp2048,aes128-sha1-modp1024,3des-sha1-modp1024!
-  esp=aes256-sha1,aes128-sha1,3des-sha1!
+  ike=$VPN_IKE!
+  esp=$VPN_ESP!
   auto=add
 EOF
 echo ": PSK \"$VPN_PSK\"" > /etc/ipsec.secrets

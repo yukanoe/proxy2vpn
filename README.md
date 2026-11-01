@@ -64,6 +64,8 @@ All settings are environment variables (see [`.env.example`](.env.example)).
 | `VPN_SERVER` | — | L2TP server host name or IP |
 | `VPN_USER`, `VPN_PASS` | — | PPP credentials (MS-CHAPv2) |
 | `VPN_PSK` | empty | IPsec pre-shared key; empty = plain L2TP |
+| `VPN_IKE` | AES-256/128, SHA-256/SHA-1, 3DES | IKE (phase 1) proposals, comma-separated, e.g. `aes256-sha256-modp2048,aes256-sha1-modp1024` |
+| `VPN_ESP` | AES-256/128, SHA-256/SHA-1, 3DES | ESP (phase 2) proposals, e.g. `aes256-sha256,aes128-sha1` |
 | `VPN_DNS` | VPN-pushed | DNS servers for vpn domains, space-separated |
 | `IDLE_TIMEOUT` | `300` | Seconds without VPN traffic before disconnecting |
 | `VPN_CONNECT_TIMEOUT` | `30` | Seconds to wait for the VPN to come up |

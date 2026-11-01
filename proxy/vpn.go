@@ -102,8 +102,8 @@ func (v *VPNManager) connect() error {
 	log.Printf("Connecting VPN...")
 	start := time.Now()
 	if v.UsePSK {
-		if err := run(25*time.Second, "ipsec", "up", "L2TP"); err != nil {
-			return fmt.Errorf("IPsec failed: %w", err)
+		if err := ipsecUp(); err != nil {
+			return err
 		}
 	}
 	if err := writeControl("c vpn"); err != nil {
@@ -240,6 +240,38 @@ func writeControl(cmd string) error {
 	defer f.Close()
 	_, err = f.WriteString(cmd + "\n")
 	return err
+}
+
+// ipsecUp runs "ipsec up L2TP". It exits 0 even when negotiation fails, so success
+// is read from the output; on failure the full output is logged for diagnosis.
+func ipsecUp() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 25*time.Second)
+	defer cancel()
+	b, err := exec.CommandContext(ctx, "ipsec", "up", "L2TP").CombinedOutput()
+	out := strings.TrimSpace(string(b))
+	if err == nil && strings.Contains(out, "established successfully") {
+		return nil
+	}
+	for _, l := range strings.Split(out, "\n") {
+		log.Printf("ipsec: %s", l)
+	}
+	return fmt.Errorf("IPsec failed: %s", ipsecReason(out, err))
+}
+
+// ipsecReason picks the most telling line from "ipsec up" output.
+func ipsecReason(out string, err error) string {
+	lines := strings.Split(out, "\n")
+	for _, key := range []string{"error notify", "AUTHENTICATION_FAILED", "giving up", "failed"} {
+		for _, l := range lines {
+			if strings.Contains(l, key) {
+				return strings.TrimSpace(l)
+			}
+		}
+	}
+	if err != nil {
+		return err.Error()
+	}
+	return strings.TrimSpace(lines[len(lines)-1])
 }
 
 func run(timeout time.Duration, name string, args ...string) error {

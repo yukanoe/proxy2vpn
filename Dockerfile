@@ -1,6 +1,6 @@
 # The Go stage runs on the build machine and cross-compiles, so multi-arch builds
 # only emulate the final stage.
-FROM --platform=$BUILDPLATFORM golang:1.23-bookworm AS build
+FROM --platform=$BUILDPLATFORM golang:1.27-bookworm AS build
 ARG TARGETOS=linux TARGETARCH
 WORKDIR /src
 COPY proxy/ .

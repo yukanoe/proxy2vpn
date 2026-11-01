@@ -29,8 +29,15 @@ curl -x http://127.0.0.1:8888 https://ifconfig.me   # needs ifconfig.me in ROUTE
 A prebuilt image for `linux/amd64` and `linux/arm64` is published to `ghcr.io/yukanoe/proxy2vpn`. To use it instead of building locally, remove `build: .` from `docker-compose.yml` and change the `image:` line to:
 
 ```yaml
-    image: ghcr.io/yukanoe/proxy2vpn:main
+    image: ghcr.io/yukanoe/proxy2vpn:latest
 ```
+
+| Tag | Contents |
+|---|---|
+| `latest` | Newest release |
+| `1.2.3`, `1.2`, `1` | A specific release line |
+| `edge` | Tip of `main`, unreleased |
+| `sha-<commit>` | One exact commit |
 
 Status of the VPN and the active rules:
 

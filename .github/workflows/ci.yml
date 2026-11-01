@@ -66,11 +66,13 @@ jobs:
         id: meta
         with:
           images: ghcr.io/${{ github.repository }}
+          # latest = newest release (v* tag), edge = tip of main
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=edge,branch=main
+            type=ref,event=pr
             type=sha
 
       - name: Log in to GHCR

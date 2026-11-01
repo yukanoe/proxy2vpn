@@ -17,10 +17,20 @@ missing=""
 # pppd runs PPP on xl2tpd's pty, which needs the ppp line discipline (module ppp_async).
 # WSL2 sets dev.tty.ldisc_autoload=0, so the kernel will not load it on demand.
 grep -q '^ppp ' /proc/tty/ldiscs 2>/dev/null || missing="$missing ppp_async"
+# IPsec: add and delete a throwaway ESP SA on loopback. This exercises exactly what
+# strongSwan needs (xfrm_user, esp4, AES-CBC, HMAC-SHA1), works whether they are
+# built in or modules (built-ins have no /sys/module entry), and makes the kernel
+# load any missing module on demand.
 if [ -n "$VPN_PSK" ]; then
-  for m in esp4 xfrm_user; do
-    [ -d "/sys/module/$m" ] || log "Warning: module $m not loaded yet, IPsec may fail"
-  done
+  sa=(src 127.0.0.1 dst 127.0.0.1 proto esp spi 0x7998)
+  if err=$(ip xfrm state add "${sa[@]}" mode transport \
+             enc 'cbc(aes)' 0x00112233445566778899aabbccddeeff \
+             auth 'hmac(sha1)' 0x00112233445566778899aabbccddeeff00112233 2>&1); then
+    ip xfrm state delete "${sa[@]}"
+  else
+    log "Warning: kernel IPsec support missing, vpn routes will fail: $err"
+    log "On the host run: modprobe -a xfrm_user esp4"
+  fi
 fi
 if [ -n "$missing" ]; then
   log "Missing kernel modules:$missing"

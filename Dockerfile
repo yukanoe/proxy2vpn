@@ -21,5 +21,5 @@ COPY --from=build /proxy2vpn /usr/local/bin/proxy2vpn
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 8888
+EXPOSE 7998
 ENTRYPOINT ["/entrypoint.sh"]

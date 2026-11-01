@@ -96,7 +96,7 @@ func main() {
 	defer stop()
 	go vpn.Watch(ctx)
 
-	addr := ":" + env("PROXY_PORT", "8888")
+	addr := ":" + env("PROXY_PORT", "7998")
 	srv := &http.Server{Addr: addr, Handler: p, ReadHeaderTimeout: 30 * time.Second}
 	go func() {
 		<-ctx.Done()

@@ -6,7 +6,7 @@
 An HTTP proxy that routes each domain one of three ways — **through an L2TP/IPsec VPN**, **direct**, or **blocked** — and brings the VPN up only while it is needed.
 
 ```
-browser / curl ──► proxy2vpn :8888 ─┬─ *.sub-1.example.com ─► ppp0 ─► L2TP/IPsec ─► VPN server
+browser / curl ──► proxy2vpn :7998 ─┬─ *.sub-1.example.com ─► ppp0 ─► L2TP/IPsec ─► VPN server
                                     ├─ *.sub-2.example.com ─► eth0 ─► internet
                                     └─ anything else ───────► 403
 ```
@@ -23,7 +23,7 @@ browser / curl ──► proxy2vpn :8888 ─┬─ *.sub-1.example.com ─► pp
 git clone https://github.com/yukanoe/proxy2vpn.git && cd proxy2vpn
 cp .env.example .env     # then edit VPN_* and ROUTE_*
 docker compose up -d --build
-curl -x http://127.0.0.1:8888 https://ifconfig.me   # needs ifconfig.me in ROUTE_VPN
+curl -x http://127.0.0.1:7998 https://ifconfig.me   # needs ifconfig.me in ROUTE_VPN
 ```
 
 A prebuilt image for `linux/amd64` and `linux/arm64` is published to `ghcr.io/yukanoe/proxy2vpn`. To use it instead of building locally, remove `build: .` from `docker-compose.yml` and change the `image:` line to:
@@ -42,8 +42,18 @@ A prebuilt image for `linux/amd64` and `linux/arm64` is published to `ghcr.io/yu
 Status of the VPN and the active rules:
 
 ```bash
-curl http://127.0.0.1:8888/status
+curl http://127.0.0.1:7998/status
 ```
+
+Point your browser or system proxy at `http://127.0.0.1:7998`.
+
+### Examples
+
+[docs/examples.md](docs/examples.md) has ready-to-run `docker run` and `docker compose` setups, with settings in `.env` or inline, for:
+
+- everything through the VPN (`ROUTE_DEFAULT=vpn`)
+- listed domains through the VPN, everything else blocked (`ROUTE_DEFAULT=block`)
+- listed domains through the VPN, everything else direct (`ROUTE_DEFAULT=direct`)
 
 ## Configuration
 
@@ -62,7 +72,7 @@ All settings are environment variables (see [`.env.example`](.env.example)).
 | `ROUTE_BLOCK` | empty | Domains rejected with 403 |
 | `ROUTE_DEFAULT` | `block` | Action for domains that match nothing: `block`, `direct` or `vpn` |
 | `DIRECT_DNS` | runtime DNS | DNS servers for direct domains |
-| `PROXY_PORT` | `8888` | Listening port inside the container |
+| `PROXY_PORT` | `7998` | Proxy port, inside the container and on `127.0.0.1` of the host (Compose) |
 | `LOG_REQUESTS` | `1` | Log each request with its route |
 
 ### Domain rules

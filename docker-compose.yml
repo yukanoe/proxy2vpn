@@ -1,0 +1,18 @@
+services:
+  proxy2vpn:
+    build: .
+    image: proxy2vpn:local
+    container_name: proxy2vpn
+    env_file: .env
+    init: true   # reaps child processes (ipsec, xl2tpd) since proxy2vpn is the main process
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/ppp:/dev/ppp
+    # If IPsec fails with permission/kernel errors, uncomment:
+    # privileged: true
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: "1"
+    ports:
+      - "127.0.0.1:8888:8888"   # reachable from this machine only
+    restart: unless-stopped

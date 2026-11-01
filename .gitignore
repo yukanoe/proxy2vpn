@@ -1,0 +1,13 @@
+# Local config with credentials
+.env
+
+# Build output
+/proxy2vpn
+/proxy/proxy2vpn
+/dist/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

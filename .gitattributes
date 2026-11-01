@@ -1,0 +1,2 @@
+# Always LF: entrypoint.sh runs in a Linux container and breaks with CRLF.
+* text=auto eol=lf
